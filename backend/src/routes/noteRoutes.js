@@ -8,6 +8,8 @@ const {
   updateNote,
   deleteNote,
   emptyTrash,
+  restoreFromTrash,
+  deleteFromTrash,
   addTagToNote,
   removeTagFromNote,
 } = require("../controllers/noteController");
@@ -27,6 +29,8 @@ router.delete("/trash", emptyTrash);
 router.post("/", createNote);
 router.put("/:id", updateNote);
 router.delete("/:id", deleteNote);
+router.patch("/:id/restore", restoreFromTrash);
+router.delete("/:id/permanent", deleteFromTrash);
 router.post("/:id/tags", addTagToNote);
 router.delete("/:id/tags/:tagId", removeTagFromNote);
 
