@@ -5,17 +5,22 @@ import {
   CheckSquare, 
   Calendar, 
   Image, 
-  Tag 
+  Tag,
+  X 
 } from '@phosphor-icons/react';
+import { useNoteStore } from '../store/useNoteStore';
 
 export const SearchBar = () => {
-  // I use state to control the visibility of the advanced filter dropdown
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef(null);
-
-  // I set up a mock array for tags. You can replace this with your actual Zustand store data later.
-  // Currently empty to demonstrate the empty state you requested.
-  const tags = []; 
+  const {
+    filters,
+    availableTags,
+    setSearchQuery,
+    setTypeFilter,
+    setTagFilter,
+    clearFilters,
+  } = useNoteStore();
 
   // I mapped out the note types using our exact Bento color dictionary for visual consistency
   const noteTypes = [
@@ -55,9 +60,21 @@ export const SearchBar = () => {
         <input
           type="text"
           placeholder="Search notes, tags, or tasks..."
+          value={filters.query}
+          onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           className="w-full h-full pl-12 pr-4 bg-transparent outline-none font-body text-[15px] font-semibold text-slate-700 placeholder:text-slate-400"
         />
+        {(filters.query || filters.type !== 'all' || filters.tag) && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="absolute right-3 p-1 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-200/60"
+            title="Clear filters"
+          >
+            <X size={16} weight="bold" />
+          </button>
+        )}
       </div>
 
       {/* Advanced Filter Dropdown Panel */}
@@ -75,10 +92,15 @@ export const SearchBar = () => {
               {noteTypes.map((type) => (
                 <button
                   key={type.id}
+                  type="button"
+                  onClick={() =>
+                    setTypeFilter(filters.type === type.id ? 'all' : type.id)
+                  }
                   className={`
                     flex flex-col items-center justify-center gap-2 h-24 rounded-2xl
                     border-2 border-b-4 transition-all focus:outline-none
                     hover:-translate-y-1 hover:shadow-md active:translate-y-0 active:border-b-2
+                    ${filters.type === type.id ? 'ring-4 ring-slate-800/15' : ''}
                     ${type.theme}
                   `}
                 >
@@ -95,11 +117,15 @@ export const SearchBar = () => {
               Filter by Tag
             </h3>
             
-            {tags.length > 0 ? (
+            {availableTags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {/* We will map the real tags here later. For now, it falls back to the empty state. */}
-                {tags.map((tag, idx) => (
-                  <button key={idx} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-slate-200 border-b-[3px] rounded-xl text-sm font-bold text-slate-600 hover:-translate-y-0.5 active:translate-y-0 active:border-b-2 transition-all">
+                {availableTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setTagFilter(filters.tag === tag ? '' : tag)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-slate-200 border-b-[3px] rounded-xl text-sm font-bold hover:-translate-y-0.5 active:translate-y-0 active:border-b-2 transition-all ${filters.tag === tag ? 'text-slate-900 bg-bento-sky border-[#9ABED7]' : 'text-slate-600'}`}
+                  >
                     <Tag size={16} weight="bold" />
                     {tag}
                   </button>

@@ -3,13 +3,14 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { PushPin, NoteBlank, CircleNotch, WarningCircle } from '@phosphor-icons/react';
 import { useNoteStore } from '../store/useNoteStore';
 import { NoteCard } from './NoteCard';
+import { filterNotes } from '../utils/noteFilters';
 
 export const BentoGrid = () => {
   const [pinnedRef] = useAutoAnimate();
   const [othersRef] = useAutoAnimate();
   
   // I'm extracting the fetch action and the network states from my Zustand store
-  const { notes, fetchNotes, isLoading, error } = useNoteStore();
+  const { notes, filters, fetchNotes, isLoading, error } = useNoteStore();
 
   useEffect(() => {
     // I trigger the API call as soon as the grid mounts to retrieve the real database seeds
@@ -36,8 +37,9 @@ export const BentoGrid = () => {
     );
   }
 
-  const pinnedNotes = notes.filter(note => note.isPinned);
-  const otherNotes = notes.filter(note => !note.isPinned);
+  const visibleNotes = filterNotes(notes, filters);
+  const pinnedNotes = visibleNotes.filter(note => note.isPinned);
+  const otherNotes = visibleNotes.filter(note => !note.isPinned);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-6 space-y-10">
@@ -83,11 +85,11 @@ export const BentoGrid = () => {
       )}
 
       {/* Empty State: I render this if the database connection succeeds but returns 0 notes */}
-      {!isLoading && !error && notes.length === 0 && (
+      {!isLoading && !error && visibleNotes.length === 0 && (
         <div className="w-full h-64 mt-8 flex flex-col items-center justify-center text-slate-400 gap-3 border-2 border-dashed border-slate-300 rounded-3xl bg-white/50">
           <NoteBlank size={48} weight="duotone" />
           <p className="font-semibold font-body text-[15px]">
-            Your workspace is empty. Let's create a new note!
+            No notes match your current filters.
           </p>
         </div>
       )}

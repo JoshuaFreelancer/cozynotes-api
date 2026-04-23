@@ -1,9 +1,13 @@
 import { api } from './axios';
 
 export const notesService = {
-  // Get all notes
-  getAll: async () => {
-    const { data } = await api.get('/notes');
+  getAll: async (params = {}) => {
+    const { data } = await api.get('/notes', { params });
+    return data;
+  },
+
+  getArchived: async (params = {}) => {
+    const { data } = await api.get('/notes/archived', { params });
     return data;
   },
 
@@ -32,5 +36,35 @@ export const notesService = {
   emptyTrash: async () => {
     const { data } = await api.delete('/notes/trash');
     return data;
-  }
+  },
+
+  restoreFromTrash: async (id) => {
+    const { data } = await api.patch(`/notes/${id}/restore`);
+    return data;
+  },
+
+  deleteFromTrash: async (id) => {
+    const { data } = await api.delete(`/notes/${id}/permanent`);
+    return data;
+  },
+
+  addTag: async (id, name) => {
+    const { data } = await api.post(`/notes/${id}/tags`, { name });
+    return data;
+  },
+
+  removeTag: async (id, tagId) => {
+    const { data } = await api.delete(`/notes/${id}/tags/${tagId}`);
+    return data;
+  },
+
+  getTags: async () => {
+    const { data } = await api.get('/tags');
+    return data;
+  },
+
+  createTag: async (name) => {
+    const { data } = await api.post('/tags', { name });
+    return data;
+  },
 };

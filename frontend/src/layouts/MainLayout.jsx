@@ -1,13 +1,16 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { FloatingActionButton } from "../components/FloatingActionButton";
 import { NoteEditorModal } from "../components/NoteEditorModal";
+import { EditTagsModal } from "../components/EditTagsModal";
 import { useUIStore } from "../store/useUIStore";
 
 export const MainLayout = () => {
+  const location = useLocation();
   const { isSidebarOpen, closeSidebar } = useUIStore();
+  const isTrashView = location.pathname === "/trash";
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -23,8 +26,9 @@ export const MainLayout = () => {
       </div>
 
       {/* Global tools that should be accessible from any layout-wrapped page */}
-      <FloatingActionButton />
+      {!isTrashView && <FloatingActionButton />}
       <NoteEditorModal />
+      <EditTagsModal />
     </div>
   );
 };
