@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { TrashPage } from "./pages/TrashPage"; // Added the new Trash route
+import { ArchivedPage } from "./pages/ArchivedPage";
 import { Error404 } from "./pages/errors/Error404";
 import { Error403 } from "./pages/errors/Error403";
 import { Error500 } from "./pages/errors/Error500";
@@ -22,7 +23,10 @@ const router = createBrowserRouter([
         path: "trash", // Loads at "/trash" inside the MainLayout
         element: <TrashPage />,
       },
-      // Future nested routes (like /tags or /archived) will go here
+      {
+        path: "archived",
+        element: <ArchivedPage />,
+      },
     ],
   },
   {

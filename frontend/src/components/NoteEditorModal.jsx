@@ -92,6 +92,29 @@ const normalizeContentForTiptap = (rawContent) => {
   // Si es el formato viejo {"body": "..."} o {"prueba"}
   if (parsed?.body) return `<p>${parsed.body}</p>`;
 
+  // Compatibilidad con notas de diario o media antiguas guardadas como objeto plano
+  if (parsed?.date || parsed?.mood || parsed?.imageUrl) {
+    const parts = [];
+
+    if (parsed?.date) {
+      parts.push(`<p><strong>Date:</strong> ${parsed.date}</p>`);
+    }
+
+    if (parsed?.mood) {
+      parts.push(`<p><strong>Mood:</strong> ${parsed.mood}</p>`);
+    }
+
+    if (parsed?.body) {
+      parts.push(`<p>${parsed.body}</p>`);
+    }
+
+    if (parsed?.imageUrl) {
+      parts.push(`<p>${parsed.imageUrl}</p>`);
+    }
+
+    return parts.join("") || "<p></p>";
+  }
+
   // Si es el formato viejo de listas {"tasks": [...]} lo convertimos a HTML de Tiptap
   if (parsed?.tasks && Array.isArray(parsed.tasks)) {
     let html = '<ul data-type="taskList">';
@@ -125,6 +148,15 @@ const EditorInner = () => {
   const [colorTheme, setColorTheme] = useState(
     currentNoteToEdit?.colorTheme || "cream",
   );
+  const [isArchived, setIsArchived] = useState(
+    currentNoteToEdit?.isArchived || false,
+  );
+  const [tags, setTags] = useState(
+    Array.isArray(currentNoteToEdit?.tags)
+      ? currentNoteToEdit.tags.map((tag) => tag.name)
+      : [],
+  );
+  const [tagInput, setTagInput] = useState("");
   const [activeMenu, setActiveMenu] = useState(null);
 
   const editor = useEditor({
@@ -150,7 +182,9 @@ const EditorInner = () => {
       content: editor.getJSON(),
       type: selectedNoteType.toUpperCase(),
       isPinned,
+      isArchived,
       colorTheme,
+      tags,
     };
 
     let success = false;
@@ -182,6 +216,21 @@ const EditorInner = () => {
 
   const toggleMenu = (menuName) => {
     setActiveMenu((prev) => (prev === menuName ? null : menuName));
+  };
+
+  const handleAddTag = () => {
+    const cleanTag = tagInput.trim().toLowerCase();
+    if (!cleanTag || tags.includes(cleanTag)) {
+      setTagInput("");
+      return;
+    }
+
+    setTags((prev) => [...prev, cleanTag]);
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (tagName) => {
+    setTags((prev) => prev.filter((tag) => tag !== tagName));
   };
 
   return (
@@ -320,6 +369,7 @@ const EditorInner = () => {
               {/* Las otras opciones se mantienen visualmente pero inactivas por ahora */}
               <button
                 type="button"
+                onClick={() => toggleMenu("tags")}
                 className="flex items-center gap-3 px-4 py-2 mt-1 hover:bg-slate-700 transition-colors text-left w-full text-sm"
               >
                 <Tag size={18} /> Añadir etiqueta
@@ -339,6 +389,51 @@ const EditorInner = () => {
             </div>
           )}
 
+          {activeMenu === "tags" && (
+            <div className="absolute bottom-17.5 left-32.5 md:left-40 w-72 bg-slate-800 text-slate-100 p-3 rounded-2xl shadow-xl flex flex-col gap-3 animate-in slide-in-from-bottom-2 duration-200 z-10">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="Etiqueta..."
+                  className="flex-1 h-9 px-3 rounded-xl bg-slate-700 text-slate-100 placeholder:text-slate-400 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddTag}
+                  className="px-3 h-9 rounded-xl bg-bento-sky text-slate-900 font-bold"
+                >
+                  Add
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto">
+                {tags.length > 0 ? (
+                  tags.map((tagName) => (
+                    <button
+                      key={tagName}
+                      type="button"
+                      onClick={() => handleRemoveTag(tagName)}
+                      className="px-2.5 py-1 rounded-lg bg-slate-700 text-xs font-semibold hover:bg-rose-500 hover:text-white"
+                      title="Eliminar etiqueta"
+                    >
+                      #{tagName}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-400">Sin etiquetas.</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* TOOLBAR FOOTER */}
           <div className="flex items-center justify-between pt-3 mt-auto border-t-2 border-slate-200/50 z-0">
             <div className="flex items-center gap-0.5 md:gap-1 overflow-x-auto no-scrollbar scroll-smooth">
@@ -355,7 +450,12 @@ const EditorInner = () => {
                 onClick={() => toggleMenu("color")}
               />
               <ToolButton icon={ImageIcon} title="Add image" disabled={true} />
-              <ToolButton icon={Archive} title="Archive" onClick={() => {}} />
+              <ToolButton
+                icon={Archive}
+                title={isArchived ? "Unarchive" : "Archive"}
+                isActive={isArchived}
+                onClick={() => setIsArchived((prev) => !prev)}
+              />
               <ToolButton
                 icon={DotsThreeVertical}
                 title="More options"

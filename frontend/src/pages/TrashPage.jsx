@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { Trash as TrashIcon, WarningCircle } from '@phosphor-icons/react';
+import { Trash as TrashIcon, WarningCircle, ArrowClockwise, TrashSimple } from '@phosphor-icons/react';
 import { useNoteStore } from '../store/useNoteStore';
 import { NoteCard } from '../components/NoteCard';
 
@@ -10,7 +10,15 @@ export const TrashPage = () => {
   // FIX: I added a fallback `= []` to trashedNotes.
   // This guarantees that even on the very first millisecond of render, 
   // or if the backend returns undefined, it will always be a valid array.
-  const { trashedNotes = [], fetchTrashedNotes, emptyTrash, isLoading, error } = useNoteStore();
+  const {
+    trashedNotes = [],
+    fetchTrashedNotes,
+    emptyTrash,
+    restoreTrashedNote,
+    deleteTrashedNote,
+    isLoading,
+    error,
+  } = useNoteStore();
 
   useEffect(() => {
     fetchTrashedNotes();
@@ -20,6 +28,16 @@ export const TrashPage = () => {
     if (window.confirm("Are you sure you want to permanently delete all notes in the trash?")) {
       await emptyTrash();
     }
+  };
+
+  const handleRestore = async (noteId) => {
+    await restoreTrashedNote(noteId);
+  };
+
+  const handleDeleteOne = async (noteId) => {
+    const shouldDelete = window.confirm("Delete this note permanently?");
+    if (!shouldDelete) return;
+    await deleteTrashedNote(noteId);
   };
 
   return (
@@ -55,7 +73,27 @@ export const TrashPage = () => {
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 auto-rows-[minmax(140px,auto)] grid-flow-dense mt-4"
         >
           {trashedNotes.map((note) => (
-            <NoteCard key={`trash-${note.id}`} note={note} isTrash={true} />
+            <div key={`trash-${note.id}`} className="flex flex-col gap-2">
+              <NoteCard note={note} isTrash={true} />
+              <div className="flex items-center gap-2 px-1">
+                <button
+                  type="button"
+                  onClick={() => handleRestore(note.id)}
+                  disabled={isLoading}
+                  className="flex-1 h-9 rounded-xl bg-bento-mint border-2 border-[#AEDBBA] text-emerald-900 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                >
+                  <ArrowClockwise size={14} weight="bold" /> Restore
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteOne(note.id)}
+                  disabled={isLoading}
+                  className="flex-1 h-9 rounded-xl bg-rose-100 border-2 border-rose-300 text-rose-700 text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                >
+                  <TrashSimple size={14} weight="bold" /> Delete
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       )}

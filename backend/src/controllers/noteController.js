@@ -85,6 +85,38 @@ const emptyTrash = async (req, res) => {
   }
 };
 
+const restoreFromTrash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const restoredNote = await noteService.restoreFromTrash(id, userId);
+    res.json(restoredNote);
+  } catch (error) {
+    console.error("❌ Error restoring note from trash:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Failed to restore note from trash." });
+  }
+};
+
+const deleteFromTrash = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    await noteService.deleteFromTrash(id, userId);
+    res.json({ message: "Note permanently deleted." });
+  } catch (error) {
+    console.error("❌ Error deleting note from trash:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Failed to delete note from trash." });
+  }
+};
+
 const addTagToNote = async (req, res) => {
   try {
     const { id } = req.params;
@@ -129,6 +161,8 @@ module.exports = {
   updateNote,
   deleteNote,
   emptyTrash,
+  restoreFromTrash,
+  deleteFromTrash,
   addTagToNote,
   removeTagFromNote,
 };

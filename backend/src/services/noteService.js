@@ -167,6 +167,42 @@ const emptyTrash = async (userId) => {
   return true;
 };
 
+const restoreFromTrash = async (noteId, userId) => {
+  const note = await Note.findOne({
+    where: {
+      id: noteId,
+      userId,
+      deletedAt: { [Op.not]: null },
+    },
+    paranoid: false,
+  });
+
+  if (!note) {
+    throw new Error("Note not found or unauthorized.");
+  }
+
+  await note.restore();
+  return await Note.findByPk(note.id, withTags);
+};
+
+const deleteFromTrash = async (noteId, userId) => {
+  const note = await Note.findOne({
+    where: {
+      id: noteId,
+      userId,
+      deletedAt: { [Op.not]: null },
+    },
+    paranoid: false,
+  });
+
+  if (!note) {
+    throw new Error("Note not found or unauthorized.");
+  }
+
+  await note.destroy({ force: true });
+  return true;
+};
+
 const addTagToNote = async (noteId, userId, tagName) => {
   const normalized = normalizeTagName(tagName);
   if (!normalized) {
@@ -210,6 +246,8 @@ module.exports = {
   updateNote,
   deleteNote,
   emptyTrash,
+  restoreFromTrash,
+  deleteFromTrash,
   addTagToNote,
   removeTagFromNote,
 };

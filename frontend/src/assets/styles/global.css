@@ -49,3 +49,8 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Force Sileo above every app layer, including the sticky header and modals */
+[data-sileo-viewport] {
+  z-index: 9999 !important;
+}
