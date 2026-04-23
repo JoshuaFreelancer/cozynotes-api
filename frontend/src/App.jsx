@@ -1,15 +1,11 @@
-import React from 'react';
-import { Toaster } from 'sileo';
-import { BentoGrid } from './components/BentoGrid';
+import React from "react";
+import { Dashboard } from "./pages/Dashboard";
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-slate-900 font-sans selection:bg-rose-200">
-      <Toaster position="bottom-right" />
-      
-      <main className="py-4 md:py-8">
-        <BentoGrid />
-      </main>
+    /* I'm using a strictly full-width wrapper to ensure my layout hits the screen edges */
+    <div className="w-full min-h-screen">
+      <Dashboard />
     </div>
   );
 }
