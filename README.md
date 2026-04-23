@@ -50,4 +50,4 @@ El proyecto incluye un script de inicialización que automatiza todo el proceso.
 3. Ejecuta el bootstrap desde la raíz del proyecto:
 
 ```bash
-bash run.sh
+bash setup.sh

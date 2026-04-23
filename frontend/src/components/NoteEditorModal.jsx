@@ -3,7 +3,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Placeholder from "@tiptap/extension-placeholder";
-// 1. Importamos las extensiones para las casillas de verificación
 import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 
@@ -61,7 +60,7 @@ const BENTO_COLORS = [
   { id: "sky", var: "var(--color-bento-sky)" },
 ];
 
-// Añadimos las listas de tareas a la configuración de Tiptap
+// Tiptap configuration
 const TIPTAP_EXTENSIONS = [
   StarterKit,
   Underline,
@@ -72,8 +71,8 @@ const TIPTAP_EXTENSIONS = [
   }),
 ];
 
-// --- EL TRADUCTOR DE DATOS LEGACY ---
-// Esta función lee el JSON viejo de la base de datos y lo convierte en algo que Tiptap entienda
+// --- TRADUCTOR LEGACY ---
+// This function reads the old JSON from the database and converts it into a format that Tiptap can understand
 const normalizeContentForTiptap = (rawContent) => {
   if (!rawContent) return "";
 
@@ -86,13 +85,13 @@ const normalizeContentForTiptap = (rawContent) => {
     }
   }
 
-  // Si ya es un documento válido de Tiptap, lo devolvemos tal cual
+  // If it is already a valid Tiptap document, we return it as is
   if (parsed?.type === "doc") return parsed;
 
-  // Si es el formato viejo {"body": "..."} o {"prueba"}
+  // If it's the old format {“body”: “...”} or {“test”}
   if (parsed?.body) return `<p>${parsed.body}</p>`;
 
-  // Compatibilidad con notas de diario o media antiguas guardadas como objeto plano
+  // Support for old journal or media entries saved as flat objects
   if (parsed?.date || parsed?.mood || parsed?.imageUrl) {
     const parts = [];
 
@@ -115,7 +114,7 @@ const normalizeContentForTiptap = (rawContent) => {
     return parts.join("") || "<p></p>";
   }
 
-  // Si es el formato viejo de listas {"tasks": [...]} lo convertimos a HTML de Tiptap
+  // If it's the old list format {“tasks”: [...]}, we'll convert it to Tiptap HTML
   if (parsed?.tasks && Array.isArray(parsed.tasks)) {
     let html = '<ul data-type="taskList">';
     parsed.tasks.forEach((t) => {
@@ -125,7 +124,7 @@ const normalizeContentForTiptap = (rawContent) => {
     return html;
   }
 
-  // Fallback de seguridad
+  // Security Fallback
   return typeof parsed === "object" ? JSON.stringify(parsed) : String(parsed);
 };
 
@@ -148,9 +147,7 @@ const EditorInner = () => {
   const [colorTheme, setColorTheme] = useState(
     currentNoteToEdit?.colorTheme || "cream",
   );
-  const [isArchived, setIsArchived] = useState(
-    currentNoteToEdit?.isArchived || false,
-  );
+  const [isArchived] = useState(currentNoteToEdit?.isArchived || false);
   const [tags, setTags] = useState(
     Array.isArray(currentNoteToEdit?.tags)
       ? currentNoteToEdit.tags.map((tag) => tag.name)
@@ -161,7 +158,7 @@ const EditorInner = () => {
 
   const editor = useEditor({
     extensions: TIPTAP_EXTENSIONS,
-    // Pasamos el contenido por nuestro traductor antes de dárselo a Tiptap
+    // We run the content through our translator before passing it to Tiptap
     content: normalizeContentForTiptap(currentNoteToEdit?.content),
     editorProps: {
       attributes: {
@@ -173,9 +170,8 @@ const EditorInner = () => {
 
   const hasContent = title.trim().length > 0 || (editor && !editor.isEmpty);
 
-  const handleSave = async (e) => {
-    if (e) e.preventDefault();
-    if (!hasContent) return;
+  const persistNote = async (overrides = {}) => {
+    if (!hasContent) return false;
 
     const payload = {
       title,
@@ -185,6 +181,7 @@ const EditorInner = () => {
       isArchived,
       colorTheme,
       tags,
+      ...overrides,
     };
 
     let success = false;
@@ -195,15 +192,27 @@ const EditorInner = () => {
     }
 
     if (success) closeModal();
+    return success;
   };
 
-  // --- LÓGICA DE ELIMINACIÓN ---
-  const handleDelete = async () => {
-    if (!currentNoteToEdit?.id) return; // Por si acaso le dan click al crear una nueva
+  const handleSave = async (e) => {
+    if (e) e.preventDefault();
+    const success = await persistNote();
+    if (success) closeModal();
+  };
 
-    // Podrías añadir un window.confirm("¿Seguro?") aquí si lo deseas en el futuro
+  const handleArchiveNow = async () => {
+    const nextArchivedState = !isArchived;
+    const success = await persistNote({ isArchived: nextArchivedState });
+    if (success) closeModal();
+  };
+
+  // --- ELIMINATION LOGIC ---
+  const handleDelete = async () => {
+    if (!currentNoteToEdit?.id) return; // Just in case you click it when creating a new one
+
     await deleteNote(currentNoteToEdit.id);
-    // El closeModal ya se ejecuta en el store si el delete es exitoso
+    // closeModal is already executed in the store if the delete operation is successful
   };
 
   const handleSmartClose = async () => {
@@ -357,7 +366,6 @@ const EditorInner = () => {
           {/* More Options Popover */}
           {activeMenu === "more" && (
             <div className="absolute bottom-17.5 left-32.5 md:left-40 w-56 bg-slate-800 text-slate-200 py-2 rounded-2xl shadow-xl flex flex-col animate-in slide-in-from-bottom-2 duration-200 z-10 overflow-hidden">
-              {/* Conectamos el botón de eliminar al handler de borrado */}
               <button
                 type="button"
                 onClick={handleDelete}
@@ -366,7 +374,7 @@ const EditorInner = () => {
                 <Trash size={18} /> Eliminar la nota
               </button>
 
-              {/* Las otras opciones se mantienen visualmente pero inactivas por ahora */}
+              {/* The other options remain visible but are currently inactive */}
               <button
                 type="button"
                 onClick={() => toggleMenu("tags")}
@@ -454,7 +462,7 @@ const EditorInner = () => {
                 icon={Archive}
                 title={isArchived ? "Unarchive" : "Archive"}
                 isActive={isArchived}
-                onClick={() => setIsArchived((prev) => !prev)}
+                onClick={handleArchiveNow}
               />
               <ToolButton
                 icon={DotsThreeVertical}

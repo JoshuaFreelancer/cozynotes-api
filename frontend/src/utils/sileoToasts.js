@@ -27,6 +27,24 @@ const toastPresets = {
     },
   },
   archive: {
+    title: "Note archived",
+    type: "warning",
+    styles: {
+      ...baseStyles,
+      title: "font-semibold text-violet-950",
+      description: "text-violet-900/80",
+    },
+  },
+  unarchive: {
+    title: "Note restored to active",
+    type: "success",
+    styles: {
+      ...baseStyles,
+      title: "font-semibold text-emerald-950",
+      description: "text-emerald-900/80",
+    },
+  },
+  trashMove: {
     title: "Note moved to trash",
     type: "warning",
     styles: {
@@ -131,12 +149,14 @@ const defaultDescription = {
   create: (payload) => payload?.title || "Your note was saved successfully.",
   update: (payload) => {
     if (payload?.isPinned && payload?.isArchived)
-      return "Pinned note saved and moved to trash.";
+      return "Pinned note saved and archived.";
     if (payload?.isPinned) return "Your pinned note was updated successfully.";
-    if (payload?.isArchived) return "Your note was moved to trash.";
+    if (payload?.isArchived) return "Your note was archived.";
     return "Your note was updated successfully.";
   },
-  archive: () => "You can restore it later from Trash.",
+  archive: () => "You can unarchive it later from Archived Notes.",
+  unarchive: () => "It returned to your active notes.",
+  trashMove: () => "You can restore it later from Trash.",
   restore: () => "It is back in All Notes.",
   destroy: () => "This action cannot be undone.",
   trash: () => "All trashed notes were removed permanently.",

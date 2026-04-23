@@ -8,7 +8,7 @@ import { Toaster } from "sileo";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Toaster position="top-right" />
+    <Toaster position="bottom-center" />
     <App />
   </StrictMode>,
 );

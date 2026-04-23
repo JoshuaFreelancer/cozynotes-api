@@ -11,7 +11,7 @@ import {
   WarningCircle,
   Sparkle,
   Cards,
-  PenNib
+  PenNib,
 } from "@phosphor-icons/react";
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -40,14 +40,13 @@ export const AuthPage = () => {
       : await register(formData.name, formData.email, formData.password);
 
     if (success) {
-      navigate("/"); 
+      navigate("/");
     }
   };
 
   return (
     /* I transformed the layout into a full-bleed split screen */
     <div className="min-h-screen w-full flex bg-[#F7F6F3]">
-      
       {/* LEFT COLUMN: Promotional/Marketing Side 
         I hide this completely on mobile/tablets (hidden lg:flex) 
       */}
@@ -65,7 +64,8 @@ export const AuthPage = () => {
             beautifully organized.
           </h1>
           <p className="font-body text-lg text-slate-700 font-semibold max-w-md">
-            CozyNotes combines the power of a modern database with the tactile feel of your favorite physical notebook.
+            CozyNotes combines the power of a modern database with the tactile
+            feel of your favorite physical notebook.
           </p>
         </div>
 
@@ -75,19 +75,25 @@ export const AuthPage = () => {
             <div className="w-12 h-12 rounded-2xl bg-white/60 border-2 border-white/80 flex items-center justify-center">
               <Cards size={24} weight="duotone" className="text-violet-900" />
             </div>
-            <p className="font-semibold text-slate-800">Dynamic Bento Grid Architecture</p>
+            <p className="font-semibold text-slate-800">
+              Dynamic Bento Grid Architecture
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/60 border-2 border-white/80 flex items-center justify-center">
               <Sparkle size={24} weight="duotone" className="text-violet-900" />
             </div>
-            <p className="font-semibold text-slate-800">Distraction-free, soft-brutalism design</p>
+            <p className="font-semibold text-slate-800">
+              Distraction-free, soft-brutalism design
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-white/60 border-2 border-white/80 flex items-center justify-center">
               <PenNib size={24} weight="duotone" className="text-violet-900" />
             </div>
-            <p className="font-semibold text-slate-800">Rich media, to-dos, and journaling</p>
+            <p className="font-semibold text-slate-800">
+              Rich media, to-dos, and journaling
+            </p>
           </div>
         </div>
       </div>
@@ -100,7 +106,6 @@ export const AuthPage = () => {
           ref={parentRef}
           className="w-full max-w-md bg-white border-2 border-slate-200 border-b-8 rounded-4xl p-6 md:p-8 shadow-sm flex flex-col gap-6"
         >
-          
           {/* Form Header (Only shows logo on mobile since desktop has it on the left) */}
           <div className="flex flex-col items-center text-center gap-3">
             <div className="lg:hidden w-16 h-16 rounded-[20px] bg-bento-peach border-2 border-[#DBA19C] border-b-4 flex items-center justify-center shadow-sm">
@@ -128,14 +133,18 @@ export const AuthPage = () => {
           {/* I added a 'key' prop tied to the state. This forces React to destroy and remount 
             the form, triggering the explicit Tailwind animate-in transition cleanly.
           */}
-          <form 
-            key={isLoginView ? 'login' : 'register'}
-            onSubmit={handleSubmit} 
+          <form
+            key={isLoginView ? "login" : "register"}
+            onSubmit={handleSubmit}
             className="flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300"
           >
             {!isLoginView && (
               <div className="relative">
-                <User size={20} weight="bold" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <User
+                  size={20}
+                  weight="bold"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                />
                 <input
                   type="text"
                   name="name"
@@ -150,7 +159,11 @@ export const AuthPage = () => {
             )}
 
             <div className="relative">
-              <EnvelopeSimple size={20} weight="bold" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <EnvelopeSimple
+                size={20}
+                weight="bold"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="email"
                 name="email"
@@ -163,7 +176,11 @@ export const AuthPage = () => {
             </div>
 
             <div className="relative">
-              <LockKey size={20} weight="bold" className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <LockKey
+                size={20}
+                weight="bold"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="password"
                 name="password"

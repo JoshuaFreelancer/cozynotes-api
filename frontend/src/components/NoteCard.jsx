@@ -117,30 +117,27 @@ export const NoteCard = ({ note, isTrash = false }) => {
 
         {note.type === "TODO" && (
           <ul className="text-[14px] font-semibold opacity-80 flex flex-col gap-2">
-            {(todoItems.length > 0
-              ? todoItems
-              : parsedContent.tasks || []
-            )
+            {(todoItems.length > 0 ? todoItems : parsedContent.tasks || [])
               .slice(0, 7)
               .map((task, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <input
-                  type="checkbox"
-                  checked={Boolean(task.done)}
-                  readOnly
-                  className="mt-1 w-4 h-4 rounded-full accent-slate-800 opacity-60 cursor-pointer shrink-0"
-                />
-                <span
-                  className={
-                    task.done
-                      ? "line-through opacity-50"
-                      : "leading-tight wrap-break-word"
-                  }
-                >
-                  {task.text}
-                </span>
-              </li>
-            ))}
+                <li key={idx} className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(task.done)}
+                    readOnly
+                    className="mt-1 w-4 h-4 rounded-full accent-slate-800 opacity-60 cursor-pointer shrink-0"
+                  />
+                  <span
+                    className={
+                      task.done
+                        ? "line-through opacity-50"
+                        : "leading-tight wrap-break-word"
+                    }
+                  >
+                    {task.text}
+                  </span>
+                </li>
+              ))}
           </ul>
         )}
 

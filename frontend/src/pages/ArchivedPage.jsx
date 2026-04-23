@@ -1,9 +1,14 @@
-import React, { useEffect } from 'react';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { Archive, CircleNotch, WarningCircle, ArrowUUpLeft } from '@phosphor-icons/react';
-import { useNoteStore } from '../store/useNoteStore';
-import { NoteCard } from '../components/NoteCard';
-import { filterNotes } from '../utils/noteFilters';
+import React, { useEffect } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import {
+  Archive,
+  CircleNotch,
+  WarningCircle,
+  ArrowUUpLeft,
+} from "@phosphor-icons/react";
+import { useNoteStore } from "../store/useNoteStore";
+import { NoteCard } from "../components/NoteCard";
+import { filterNotes } from "../utils/noteFilters";
 
 export const ArchivedPage = () => {
   const [gridRef] = useAutoAnimate();
@@ -41,7 +46,9 @@ export const ArchivedPage = () => {
     return (
       <div className="w-full max-w-3xl mx-auto p-6 bg-rose-50 border-2 border-rose-200 rounded-[20px] flex items-center gap-3 text-rose-700 shadow-sm mt-8">
         <WarningCircle size={28} weight="duotone" className="shrink-0" />
-        <p className="font-semibold font-body">Oops! Could not load archived notes: {error}</p>
+        <p className="font-semibold font-body">
+          Oops! Could not load archived notes: {error}
+        </p>
       </div>
     );
   }

@@ -9,7 +9,6 @@ export const Header = () => {
 
   return (
     <header className="w-full flex items-center justify-between px-3 py-2.5 md:py-3 md:px-6 sticky top-0 z-50 bg-[#F7F6F3]/80 backdrop-blur-md border-b-2 border-slate-200">
-      
       <div className="flex items-center gap-2 md:gap-4 shrink-0">
         {/* Sidebar Trigger */}
         <button
@@ -21,10 +20,10 @@ export const Header = () => {
 
         {/* Branding Responsive */}
         <div className="hidden sm:flex items-center gap-2">
-          <img 
-            src="/Cozy_Notes_Logo.webp" 
-            alt="Cozy Notes Logo" 
-            className="w-9 h-9 md:w-10 md:h-10 shrink-0" 
+          <img
+            src="/Cozy_Notes_Logo.webp"
+            alt="Cozy Notes Logo"
+            className="w-9 h-9 md:w-10 md:h-10 shrink-0"
           />
           <h1 className="hidden md:block font-display text-xl md:text-2xl font-bold text-slate-800 tracking-wide">
             Cozy<span className="text-slate-500">Notes</span>
@@ -40,7 +39,6 @@ export const Header = () => {
       <div className="flex items-center shrink-0">
         <UserMenu />
       </div>
-      
     </header>
   );
 };

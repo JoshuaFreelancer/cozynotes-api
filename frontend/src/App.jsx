@@ -2,7 +2,7 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
 import { Dashboard } from "./pages/Dashboard";
-import { TrashPage } from "./pages/TrashPage"; // Added the new Trash route
+import { TrashPage } from "./pages/TrashPage";
 import { ArchivedPage } from "./pages/ArchivedPage";
 import { Error404 } from "./pages/errors/Error404";
 import { Error403 } from "./pages/errors/Error403";

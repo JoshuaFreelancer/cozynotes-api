@@ -10,9 +10,6 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("📦 Database connection established successfully.");
 
-    // I'll use sync for dev, but I should switch to migrations for prod later
-    //await sequelize.sync({ alter: true });
-
     // Finally, boot up the server
     app.listen(PORT, () => {
       console.log(`🚀 Server is up and running on http://localhost:${PORT}`);

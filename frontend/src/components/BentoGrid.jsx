@@ -1,14 +1,19 @@
-import React, { useEffect } from 'react';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { PushPin, NoteBlank, CircleNotch, WarningCircle } from '@phosphor-icons/react';
-import { useNoteStore } from '../store/useNoteStore';
-import { NoteCard } from './NoteCard';
-import { filterNotes } from '../utils/noteFilters';
+import React, { useEffect } from "react";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import {
+  PushPin,
+  NoteBlank,
+  CircleNotch,
+  WarningCircle,
+} from "@phosphor-icons/react";
+import { useNoteStore } from "../store/useNoteStore";
+import { NoteCard } from "./NoteCard";
+import { filterNotes } from "../utils/noteFilters";
 
 export const BentoGrid = () => {
   const [pinnedRef] = useAutoAnimate();
   const [othersRef] = useAutoAnimate();
-  
+
   // I'm extracting the fetch action and the network states from my Zustand store
   const { notes, filters, fetchNotes, isLoading, error } = useNoteStore();
 
@@ -22,7 +27,9 @@ export const BentoGrid = () => {
     return (
       <div className="w-full h-64 flex flex-col items-center justify-center gap-3 text-slate-400">
         <CircleNotch size={40} weight="bold" className="animate-spin" />
-        <p className="font-semibold font-display tracking-wide">Loading workspace...</p>
+        <p className="font-semibold font-display tracking-wide">
+          Loading workspace...
+        </p>
       </div>
     );
   }
@@ -32,18 +39,19 @@ export const BentoGrid = () => {
     return (
       <div className="w-full max-w-3xl mx-auto p-6 bg-rose-50 border-2 border-rose-200 rounded-[20px] flex items-center gap-3 text-rose-700 shadow-sm mt-8">
         <WarningCircle size={28} weight="duotone" className="shrink-0" />
-        <p className="font-semibold font-body">Oops! Could not load notes: {error}</p>
+        <p className="font-semibold font-body">
+          Oops! Could not load notes: {error}
+        </p>
       </div>
     );
   }
 
   const visibleNotes = filterNotes(notes, filters);
-  const pinnedNotes = visibleNotes.filter(note => note.isPinned);
-  const otherNotes = visibleNotes.filter(note => !note.isPinned);
+  const pinnedNotes = visibleNotes.filter((note) => note.isPinned);
+  const otherNotes = visibleNotes.filter((note) => !note.isPinned);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-6 space-y-10">
-      
       {/* Pinned Section */}
       {pinnedNotes.length > 0 && (
         <section>
@@ -53,8 +61,8 @@ export const BentoGrid = () => {
               Pinned
             </h2>
           </div>
-          <div 
-            ref={pinnedRef} 
+          <div
+            ref={pinnedRef}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 auto-rows-[minmax(140px,auto)] grid-flow-dense"
           >
             {pinnedNotes.map((note) => (
@@ -73,8 +81,8 @@ export const BentoGrid = () => {
               Others
             </h2>
           </div>
-          <div 
-            ref={othersRef} 
+          <div
+            ref={othersRef}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 auto-rows-[minmax(140px,auto)] grid-flow-dense"
           >
             {otherNotes.map((note) => (
@@ -93,7 +101,6 @@ export const BentoGrid = () => {
           </p>
         </div>
       )}
-
     </div>
   );
 };

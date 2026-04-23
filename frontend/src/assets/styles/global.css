@@ -20,10 +20,6 @@
     font-family: var(--font-body);
     font-weight: 600;
 
-    /* Pro touch: I added a subtle dot pattern to simulate notebook paper or a corkboard */
-    background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
-    background-size: 24px 24px;
-
     /* I'm smoothing the fonts so Fredoka and Nunito look premium */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

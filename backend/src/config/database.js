@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
   development: {
@@ -8,7 +8,7 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     // Keeping the console clean so I can actually read my logs
-    logging: false 
+    logging: false,
   },
   test: {
     // Might configure a test db here later if needed
@@ -17,18 +17,18 @@ module.exports = {
     database: `${process.env.DB_NAME}_test`,
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
-    logging: false
+    logging: false,
   },
   production: {
     // Standard production setup using a connection URL
-    use_env_variable: 'DATABASE_URL',
-    dialect: 'mysql',
+    use_env_variable: "DATABASE_URL",
+    dialect: "mysql",
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
     },
-    logging: false
-  }
+    logging: false,
+  },
 };

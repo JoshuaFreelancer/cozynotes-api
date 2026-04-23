@@ -1,4 +1,3 @@
-// src/store/useNoteStore.js
 import { create } from "zustand";
 import { notesService } from "../services/notesService";
 import { collectTags } from "../utils/noteFilters";
@@ -111,7 +110,7 @@ export const useNoteStore = create((set, get) => ({
         isModalOpen: false,
         isLoading: false,
       }));
-      showActionToast("create", noteData);
+      showActionToast(newNote.isArchived ? "archive" : "create", newNote);
       return true;
     } catch {
       showErrorToast("Could not create note", "Create failed");
@@ -123,6 +122,7 @@ export const useNoteStore = create((set, get) => ({
   updateNote: async (noteId, updatedData) => {
     set({ isLoading: true, error: null });
     try {
+      const previousNote = get().notes.find((note) => note.id === noteId);
       const updatedNote = await notesService.update(noteId, updatedData);
 
       set((state) => ({
@@ -148,7 +148,12 @@ export const useNoteStore = create((set, get) => ({
         isLoading: false,
         currentNoteToEdit: null,
       }));
-      showActionToast("update", updatedData);
+
+      if (previousNote?.isArchived !== updatedNote.isArchived) {
+        showActionToast(updatedNote.isArchived ? "archive" : "unarchive", updatedNote);
+      } else {
+        showActionToast("update", updatedData);
+      }
       return true;
     } catch {
       showErrorToast("Could not update note", "Update failed");
@@ -170,7 +175,7 @@ export const useNoteStore = create((set, get) => ({
         isLoading: false,
         currentNoteToEdit: null,
       }));
-      showActionToast("archive", {
+      showActionToast("trashMove", {
         isArchived: true,
         isPinned: removedNote?.isPinned,
       });
@@ -181,8 +186,6 @@ export const useNoteStore = create((set, get) => ({
       return false;
     }
   },
-
-  // --- NUEVAS FUNCIONES DE LA PAPELERA QUE FALTABAN ---
 
   fetchTrashedNotes: async () => {
     set({ isLoading: true, error: null });
@@ -199,7 +202,7 @@ export const useNoteStore = create((set, get) => ({
     try {
       await notesService.emptyTrash();
       set({ trashedNotes: [], isLoading: false });
-      showActionToast("trash");
+      showActionToast("trash", {}, { title: "Trash emptied" });
       return true;
     } catch {
       showErrorToast("Could not empty trash", "Trash failed");
