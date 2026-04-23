@@ -1,4 +1,5 @@
 import React from "react";
+import { useNoteStore } from "../store/useNoteStore";
 
 const themeDictionary = {
   cream: "bg-bento-cream text-slate-800 border-[#EADDCE]",
@@ -16,7 +17,28 @@ const sizeDictionary = {
   MEDIA: "col-span-1 lg:col-span-2 row-span-1",
 };
 
-export const NoteCard = ({ note }) => {
+const extractTextFromTiptap = (json) => {
+  if (!json || !json.content) return "";
+
+  let text = "";
+  json.content.forEach((node) => {
+    if (
+      (node.type === "paragraph" || node.type === "heading") &&
+      node.content
+    ) {
+      node.content.forEach((textNode) => {
+        if (textNode.text) text += textNode.text + " ";
+      });
+      text += " ";
+    }
+  });
+  return text.trim();
+};
+
+// I added the isTrash prop to handle conditional interactivity
+export const NoteCard = ({ note, isTrash = false }) => {
+  const { openEditModal } = useNoteStore();
+
   const colorThemeClasses =
     themeDictionary[note.colorTheme] || themeDictionary.cream;
   const sizeClass = sizeDictionary[note.type] || sizeDictionary.TEXT;
@@ -31,23 +53,22 @@ export const NoteCard = ({ note }) => {
     console.error("Failed to parse note content");
   }
 
+  // If the note is in the trash, I strip away the hover effects and dull the colors slightly
+  const interactiveClasses = isTrash
+    ? "opacity-75 grayscale-[20%] cursor-default"
+    : "cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_12px_24px_-8px_rgba(0,0,0,0.15)]";
+
   return (
     <div
+      onClick={() => {
+        // I only trigger the edit modal if this card is NOT in the trash
+        if (!isTrash) openEditModal(note);
+      }}
       className={`
         p-5 flex flex-col gap-2 relative overflow-hidden group
-        
-                                 
         rounded-tl-3xl rounded-bl-3xl rounded-tr-[40px] rounded-br-3xl
-        
-        /* 3D card depth */
         border-2 border-r-4 border-b-[6px]
-        
-        /* Edge highlight & soft shadow */
-        
-        /* Hover physics */
-        transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01]
-        hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.8),0_12px_24px_-8px_rgba(0,0,0,0.15)]
-        
+        ${interactiveClasses}
         ${colorThemeClasses} ${sizeClass}
       `}
     >
@@ -58,7 +79,7 @@ export const NoteCard = ({ note }) => {
       <div className="flex-1 overflow-hidden mt-1 text-slate-800 relative z-10">
         {note.type === "TEXT" && (
           <p className="text-[14px] font-semibold opacity-80 line-clamp-8 leading-snug">
-            {parsedContent.body}
+            {extractTextFromTiptap(parsedContent) || "Empty note..."}
           </p>
         )}
 
@@ -92,7 +113,7 @@ export const NoteCard = ({ note }) => {
               ✨
             </span>
             <span className="font-display text-[16px] font-bold tracking-wider uppercase text-slate-700/80">
-              {parsedContent.date}
+              {parsedContent.date || "Today's Entry"}
             </span>
           </div>
         )}
@@ -102,7 +123,7 @@ export const NoteCard = ({ note }) => {
             <p
               className={`${parsedContent.imageUrl ? "line-clamp-4" : "line-clamp-6"} leading-snug`}
             >
-              {parsedContent.body}
+              {extractTextFromTiptap(parsedContent) || "Media note..."}
             </p>
             {parsedContent.imageUrl && (
               <div className="w-full bg-black/5 rounded-xl flex items-center justify-center h-12 border border-black/5 shrink-0 mt-auto group-hover:bg-black/10 transition-colors">
