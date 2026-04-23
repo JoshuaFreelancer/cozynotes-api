@@ -1,19 +1,42 @@
-import { create } from "zustand";
+import { create } from 'zustand';
+import { notesService } from '../services/notes.service';
 
-// Creating a global store to manage all note-related state across the application
 export const useNoteStore = create((set) => ({
   notes: [],
   isLoading: false,
+  error: null,
 
-  // Actions to manipulate the state
-  setNotes: (notes) => set({ notes }),
+  // Action to fetch notes from the database
+  fetchNotes: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await notesService.getAll();
+      set({ notes: data, isLoading: false });
+    } catch (error) {
+      set({ error: error.message, isLoading: false });
+    }
+  },
 
-  addNote: (newNote) =>
-    set((state) => ({
-      // New notes go to the top of the array
-      notes: [newNote, ...state.notes],
-    })),
+  // Action to add a note
+  addNote: async (newNote) => {
+    try {
+      const createdNote = await notesService.create(newNote);
+      // Optimistically update the UI or use the DB response
+      set((state) => ({ notes: [createdNote, ...state.notes] }));
+    } catch (error) {
+      console.error("Failed to add note", error);
+    }
+  },
 
-  // I will implement the update and delete actions here
-  // once I hook up the Axios calls to the backend
+  // Action to delete a note
+  deleteNote: async (id) => {
+    try {
+      await notesService.delete(id);
+      set((state) => ({
+        notes: state.notes.filter((note) => note.id !== id),
+      }));
+    } catch (error) {
+      console.error("Failed to delete note", error);
+    }
+  }
 }));
