@@ -23,5 +23,14 @@ export const notesService = {
   delete: async (id) => {
     const { data } = await api.delete(`/notes/${id}`);
     return data;
+  },
+
+  getTrash: async () => {
+    const { data } = await api.get('/notes/trash');
+    return data;
+  },
+  emptyTrash: async () => {
+    const { data } = await api.delete('/notes/trash');
+    return data;
   }
 };

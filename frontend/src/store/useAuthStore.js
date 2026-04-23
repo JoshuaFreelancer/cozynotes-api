@@ -1,40 +1,40 @@
 import { create } from 'zustand';
-import { api } from '../services/axios';
+import { api } from '../services/axios'; // Ajusta la ruta a tu archivo api
 
 export const useAuthStore = create((set) => ({
-  user: null,
+  // I also pull the user from localStorage so the UI (like the Header menu) 
+  // doesn't break or disappear after a page reload.
+  user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
   isLoading: false,
   error: null,
 
-  // I handle the login request and save the JWT token locally
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
       const { data } = await api.post('/auth/login', { email, password });
+      
+      // Saving both the token and the user footprint to survive page reloads
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
-      // I attach the token to future axios requests globally
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       set({ user: data.user, token: data.token, isLoading: false });
-      
-      return true; // Success flag for the component
+      return true;
     } catch (error) {
       set({ error: error.response?.data?.message || 'Login failed', isLoading: false });
       return false;
     }
   },
 
-  // Registration uses standard backend models (name, email, password)
   register: async (name, email, password) => {
     set({ isLoading: true, error: null });
     try {
       const { data } = await api.post('/auth/register', { name, email, password });
+      
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       set({ user: data.user, token: data.token, isLoading: false });
-      
       return true;
     } catch (error) {
       set({ error: error.response?.data?.message || 'Registration failed', isLoading: false });
@@ -43,8 +43,9 @@ export const useAuthStore = create((set) => ({
   },
 
   logout: () => {
+    // A complete clean-up of local storage and state
     localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('user');
     set({ user: null, token: null });
   }
 }));

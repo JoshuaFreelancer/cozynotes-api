@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   Tag.associate = (models) => {
     // The other side of the Many-to-Many relationship
     Tag.belongsToMany(models.Note, {
-      through: "note_tags",
+      through: { model: "note_tags", timestamps: false },
       foreignKey: "tagId",
       as: "notes",
     });

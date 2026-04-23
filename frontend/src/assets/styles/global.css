@@ -40,3 +40,12 @@
     }
   }
 }
+
+/* Tiptap Placeholder styling */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #94a3b8; /* Tailwind slate-400 */
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

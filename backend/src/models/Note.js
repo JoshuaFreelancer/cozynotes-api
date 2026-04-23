@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     Note.belongsTo(models.User, { foreignKey: "userId", as: "author" });
 
     Note.belongsToMany(models.Tag, {
-      through: "note_tags",
+      through: { model: "note_tags", timestamps: false },
       foreignKey: "noteId",
       as: "tags",
     });
