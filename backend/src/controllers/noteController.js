@@ -1,27 +1,9 @@
-const { Note, Tag } = require("../models");
+const noteService = require("../services/noteService");
 
-// Fetch all active notes for the logged-in user
 const getAllNotes = async (req, res) => {
   try {
-    // The req.user.id will be injected by the JWT middleware later
     const userId = req.user.id;
-
-    const notes = await Note.findAll({
-      where: { userId, isArchived: false },
-      include: [
-        {
-          model: Tag,
-          as: "tags",
-          through: { attributes: [] }, // Hides the junction table data from the response
-        },
-      ],
-      // Pinned notes should always appear first, then sorted by newest
-      order: [
-        ["isPinned", "DESC"],
-        ["createdAt", "DESC"],
-      ],
-    });
-
+    const notes = await noteService.getActiveNotes(userId, req.query.tag);
     res.json(notes);
   } catch (error) {
     console.error("❌ Error fetching notes:", error);
@@ -29,23 +11,31 @@ const getAllNotes = async (req, res) => {
   }
 };
 
-// Create a new note matching the Bento Box dynamic structure
+const getArchivedNotes = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const notes = await noteService.getArchivedNotes(userId, req.query.tag);
+    res.json(notes);
+  } catch (error) {
+    console.error("❌ Error fetching archived notes:", error);
+    res.status(500).json({ message: "Failed to retrieve archived notes." });
+  }
+};
+
+const getTrash = async (req, res) => {
+  try {
+    const notes = await noteService.getTrashedNotes(req.user.id);
+    res.json(notes);
+  } catch (error) {
+    console.error("❌ Error fetching trash:", error);
+    res.status(500).json({ message: "Failed to retrieve trash." });
+  }
+};
+
 const createNote = async (req, res) => {
   try {
-    const { title, content, type, isPinned, colorTheme } = req.body;
     const userId = req.user.id;
-
-    const newNote = await Note.create({
-      title,
-      content, // This expects a JSON object based on my model configuration
-      type: type || "TEXT",
-      isPinned: isPinned || false,
-      colorTheme: colorTheme || "cream",
-      userId,
-    });
-
-    // TODO: I will handle dynamic tag creation and association here later
-
+    const newNote = await noteService.createNote(userId, req.body);
     res.status(201).json(newNote);
   } catch (error) {
     console.error("❌ Error creating note:", error);
@@ -53,65 +43,92 @@ const createNote = async (req, res) => {
   }
 };
 
-// Update an existing note
 const updateNote = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, content, type, isPinned, isArchived, colorTheme } = req.body;
     const userId = req.user.id;
 
-    const note = await Note.findOne({ where: { id, userId } });
-
-    if (!note) {
-      return res
-        .status(404)
-        .json({ message: "Note not found or unauthorized." });
-    }
-
-    // Updating only the fields that were actually sent in the request
-    await note.update({
-      title: title !== undefined ? title : note.title,
-      content: content !== undefined ? content : note.content,
-      type: type !== undefined ? type : note.type,
-      isPinned: isPinned !== undefined ? isPinned : note.isPinned,
-      isArchived: isArchived !== undefined ? isArchived : note.isArchived,
-      colorTheme: colorTheme !== undefined ? colorTheme : note.colorTheme,
-    });
-
-    res.json(note);
+    const updatedNote = await noteService.updateNote(id, userId, req.body);
+    res.json(updatedNote);
   } catch (error) {
-    console.error("❌ Error updating note:", error);
+    console.error("❌ Error updating note:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
     res.status(500).json({ message: "Failed to update the note." });
   }
 };
 
-// Soft delete a note (moves it to the trash thanks to paranoid: true)
 const deleteNote = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
 
-    const note = await Note.findOne({ where: { id, userId } });
-
-    if (!note) {
-      return res
-        .status(404)
-        .json({ message: "Note not found or unauthorized." });
-    }
-
-    // This won't actually drop the row, it just populates the 'deletedAt' column
-    await note.destroy();
-
+    await noteService.deleteNote(id, userId);
     res.json({ message: "Note moved to trash successfully." });
   } catch (error) {
-    console.error("❌ Error deleting note:", error);
+    console.error("❌ Error deleting note:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
     res.status(500).json({ message: "Failed to delete the note." });
+  }
+};
+
+const emptyTrash = async (req, res) => {
+  try {
+    await noteService.emptyTrash(req.user.id);
+    res.json({ message: "Trash emptied successfully." });
+  } catch (error) {
+    console.error("❌ Error emptying trash:", error);
+    res.status(500).json({ message: "Failed to empty trash." });
+  }
+};
+
+const addTagToNote = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const { name } = req.body;
+
+    const note = await noteService.addTagToNote(id, userId, name);
+    res.json(note);
+  } catch (error) {
+    console.error("❌ Error adding tag:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
+    if (error.message === "Tag name is required.") {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Failed to add tag to note." });
+  }
+};
+
+const removeTagFromNote = async (req, res) => {
+  try {
+    const { id, tagId } = req.params;
+    const userId = req.user.id;
+
+    const note = await noteService.removeTagFromNote(id, userId, tagId);
+    res.json(note);
+  } catch (error) {
+    console.error("❌ Error removing tag:", error.message);
+    if (error.message === "Note not found or unauthorized.") {
+      return res.status(404).json({ message: error.message });
+    }
+    res.status(500).json({ message: "Failed to remove tag from note." });
   }
 };
 
 module.exports = {
   getAllNotes,
+  getArchivedNotes,
+  getTrash,
   createNote,
   updateNote,
   deleteNote,
+  emptyTrash,
+  addTagToNote,
+  removeTagFromNote,
 };
