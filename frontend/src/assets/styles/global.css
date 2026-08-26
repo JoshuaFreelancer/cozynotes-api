@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  /* Macaron tones (light but with a vibrant color saturation) */
+  --color-bento-cream: #fff8e7;
+  --color-bento-yellow: #fce89b;
+  --color-bento-mint: #d1f0d9;
+  --color-bento-lavender: #e2d6f8;
+  --color-bento-peach: #fcdce6;
+  --color-bento-sky: #d0e8f9;
+}
+
+@layer base {
+  body {
+    background-color: #f7f6f3;
+    color: #475569;
+    font-family: var(--font-body);
+    font-weight: 600;
+
+    /* I'm smoothing the fonts so Fredoka and Nunito look premium */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+/* Tiptap Placeholder styling */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #94a3b8; /* Tailwind slate-400 */
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Force Sileo above every app layer, including the sticky header and modals */
+[data-sileo-viewport] {
+  z-index: 9999 !important;
+}
