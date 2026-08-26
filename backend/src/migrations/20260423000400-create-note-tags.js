@@ -4,6 +4,13 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('note_tags', {
+      // AQUÍ DECLARAMOS LA LLAVE PRIMARIA INLINE PARA AIVEN
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -32,12 +39,6 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-    });
-
-    await queryInterface.addConstraint('note_tags', {
-      fields: ['noteId', 'tagId'],
-      type: 'primary key',
-      name: 'pk_note_tags',
     });
   },
 
